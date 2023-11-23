@@ -6,6 +6,7 @@
 #include <cassert>
 #include <string>
 #include <iomanip>
+#include <chrono>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -44,14 +45,20 @@ int main(int argc, char *argv[]) {
     PhysicsModule physicsModule;
 
     // Perform one turn tracking
+    auto start = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < inputData.latticeProps.nTrack; i++){
         if(i%int(inputData.latticeProps.nTrack/10)==0){
+            end = std::chrono::high_resolution_clock::now();
             std::cout<<"Turn: "<< i << std::endl;
+            std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
         }
         physicsModule.oneTurn(inputData, cavity, ring, beam);    
         //beam.storeParCentroids(i);
         //cavity.printCavityProps();
     }
+    end = std::chrono::high_resolution_clock::now();
+    std::cout << "Time taken to finish full simulation: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
     // write the centroids to file
     beam.writeCentroidsToFile(outfile,0,1);
 

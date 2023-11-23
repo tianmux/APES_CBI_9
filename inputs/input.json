@@ -27,7 +27,7 @@
         "Vrad": 1.2e5,
         "gamma0": 3.699e3,
         "gMTSQ": 5.882e1,
-        "nPar": 100,
+        "nPar": 1,
         "tau": 0.022e11,
         "sig_gamma": 220.7440935054759e-22,
         "sig_time":  2.6e-111 
@@ -35,7 +35,7 @@
     "latticeProps": {
         "R": 37.8,
         "nRamp": 10000,
-        "nTrack": 10000,
+        "nTrack": 200000,
         "sampRate": 1,
         "sampRate_V": 1000
     },

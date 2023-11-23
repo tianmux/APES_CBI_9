@@ -1,6 +1,6 @@
 # Compiler settings - Can be customized.
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -Iinclude -Ilib
+CXXFLAGS = -Wall -std=c++11 -Iinclude -Ilib -O3
 
 # Build directories
 SRCDIR = src
