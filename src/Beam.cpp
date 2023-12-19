@@ -4,6 +4,8 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
+#include <numeric>
 
 // ... other includes ...
 
@@ -31,7 +33,9 @@ Beam::Beam(const InputData& inputData) {
     this->gamma.resize(nPar*nBunch);
     this->q.resize(nPar*nBunch);
     this->vAdd.resize(nPar*nBunch);
-    
+    this->index.resize(nPar*nBunch);
+    std::iota(this->index.begin(), this->index.end(), 0);
+
     this->t_Cen_Hist = std::vector<std::vector<double>>(n_parStore, std::vector<double>(nBunch));
     this->g_Cen_Hist = std::vector<std::vector<double>>(n_parStore, std::vector<double>(nBunch));
 
@@ -46,7 +50,7 @@ Beam::Beam(const InputData& inputData) {
     int tmp_ibucket = 0;
     for(int i = 0; i < nTrain; ++i){
         for (int j = 0; j < pattern[i*2]; ++j){
-            this->centroid_time[tmp_ibunch] = inputData.generalProps.t0+inputData.cavityProps.TRF*tmp_ibucket;
+            this->centroid_time[tmp_ibunch] = inputData.generalProps.t0*inputData.cavityProps.TRF+inputData.cavityProps.TRF*tmp_ibucket;
             this->bucket_centers[tmp_ibunch] = this->centroid_time[tmp_ibunch];
             tmp_ibunch++;
             tmp_ibucket += inputData.beamProps.fill_step;
@@ -86,6 +90,17 @@ Beam::Beam(const InputData& inputData) {
         for(int j = 0; j < nPar; ++j){
             this->q[i*nPar+j] = this->qPb/this->nPar;
         }
+    }
+}
+void Beam::sortBasedOnTime(){
+    std::sort(this->index.begin(), this->index.end(),
+              [this](size_t i1, size_t i2) { return time[i1] < time[i2]; });
+    for (size_t i = 0; i < time.size(); ++i) {
+            while (this->index[i] != i) {
+                std::swap(time[i], time[this->index[i]]);
+                std::swap(gamma[i], gamma[this->index[i]]);
+                std::swap(this->index[i], this->index[this->index[i]]);
+            }
     }
 }
 void Beam::calcualteCentroids(){

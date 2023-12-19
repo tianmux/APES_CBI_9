@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Time taken to finish full simulation: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
     // write the centroids to file
-    beam.writeCentroidsToFile(outfile,0,1);
+    beam.writeCentroidsToFile(inputData.generalProps.projectName+"_centroid.txt",0,1);
 
 
     if(printFlag == "1"){

@@ -31,6 +31,7 @@ public:
     std::complex<double> Ug; // the integral of the generator voltage at the current feedback time point.
     std::complex<double> Vb; // the beam voltage at the current feedback time point.
 
+    int n_thread; // number of threads for parallelization.
     Cavity(const InputData& inputData, const Beam& beam);
 
     void printCavityProps() const;

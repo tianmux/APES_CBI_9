@@ -27,6 +27,7 @@ public:
     std::vector<double> time; // time coordinates of each particle
     std::vector<double> gamma; // gamma coordinates of each particle
     std::vector<double> q; // charge of each particle
+    std::vector<int> index; // index of each particle, for sorting
     std::vector<double> centroid_time; // centroid time of each bunch
     std::vector<double> bucket_centers; // bucket centers of each bunch
     std::vector<double> centroid_gamma; // centroid gamma of each bunch
@@ -46,6 +47,7 @@ public:
     void updateCharges(const std::vector<double>& newCharges);
 
     void calculateStatistics();
+    void sortBasedOnTime();
 
     // Getters for statistical moments
     void calcualteCentroids();

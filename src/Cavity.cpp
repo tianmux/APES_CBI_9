@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <omp.h>
 
 // Define the imaginary unit 'i'
 // const std::complex<double> ii(0.0, 1.0);
@@ -21,7 +22,7 @@ Cavity::Cavity(const InputData& inputData, const Beam& beam) {
     std::vector<int> tmp_feed_bucket(n_feed);
     this->feed_time.resize(n_feed);
     this->vRef.resize(n_feed);
-
+    this->n_thread = inputData.generalProps.n_thread;
     ///////////////////////////////////////////////////////
     // Initialize the feed time
     std::cout<<"initializing feed time"<<std::endl;
@@ -104,6 +105,8 @@ void Cavity::printCavityProps() const{
     std::cout << "  Epsilon: " << cavityProps.epsilon << std::endl;
     std::cout << "  Feedback Delay: " << cavityProps.delay << std::endl;
     std::cout << "  Synchronous Phase: " << cavityProps.phis << std::endl;
+    std::cout << "  Number of Feedback Time Points: " << n_feed << std::endl;
+    std::cout << "  Number of Threads: " << n_thread << std::endl;
 
     std::cout << "  Feed Time: " << std::endl;
     for(int i = 0; i < feed_time.size(); ++i){
@@ -159,13 +162,33 @@ void Cavity::calVgen(Beam& beam, int& istart, int& iend, int& ilast_feed){
     //std::cout<<"Initial value of the generator voltage: "<<this->Vg<<std::endl;
     std::complex<double> A(this->cavityProps.alpha, this->cavityProps.wRF+this->cavityProps.wCav);
     std::complex<double> B(this->cavityProps.alpha, this->cavityProps.wRF-this->cavityProps.wCav);
+
+    // This part can be parallelized since every particle is independent.
+    // set the number of thread
+    omp_set_num_threads(this->n_thread);
+    #pragma omp parallel for
     for(int i = istart; i < iend; ++i){
+        /*
+        std::complex<double> tmp_exp_cav =std::exp(ii*this->cavityProps.wCav*tmp_dt[i-istart]);
+        std::complex<double> tmp_exp_rf = std::exp(ii*this->cavityProps.wRF*tmp_dt[i-istart]);
+        std::complex<double> tmp_exp_cav_1 = std::exp(-ii*this->cavityProps.wCav*tmp_dt[i-istart]);
+        std::complex<double> tmp_exp_alpha = std::exp(-this->cavityProps.alpha*tmp_dt[i-istart]);
+        
+        this->vGen[i] = this->Ig/this->cavityProps.C*
+                        (ii*this->cavityProps.wRF/A/B*tmp_exp_rf+
+                        (this->cavityProps.alpha+ii*this->cavityProps.wCav)/(-2.0*ii*this->cavityProps.wCav*A)*tmp_exp_cav_1*tmp_exp_alpha+
+                        (this->cavityProps.alpha-ii*this->cavityProps.wCav)/(2.0*ii*this->cavityProps.wCav*B)*tmp_exp_cav*tmp_exp_alpha)+
+                        (this->Vgm1*std::cos(this->cavityProps.wRF*tmp_dt[i-istart])-this->cavityProps.alpha/this->cavityProps.wCav*std::sin(this->cavityProps.wRF*tmp_dt[i-istart])-
+                        this->Ugm1/this->cavityProps.C/this->cavityProps.L/(this->cavityProps.wCav)*std::sin(this->cavityProps.wCav*tmp_dt[i-istart]))*tmp_exp_alpha;
+        */
+        
         this->vGen[i] = this->Ig/this->cavityProps.C*
                         (ii*this->cavityProps.wRF/A/B*std::exp(ii*this->cavityProps.wRF*tmp_dt[i-istart])+
                         (this->cavityProps.alpha+ii*this->cavityProps.wCav)/(-2.0*ii*this->cavityProps.wCav*A)*std::exp(-(ii*this->cavityProps.wCav+this->cavityProps.alpha)*tmp_dt[i-istart])+
                         (this->cavityProps.alpha-ii*this->cavityProps.wCav)/(2.0*ii*this->cavityProps.wCav*B)*std::exp((ii*this->cavityProps.wCav-this->cavityProps.alpha)*tmp_dt[i-istart]))+
                         (this->Vgm1*std::cos(this->cavityProps.wRF*tmp_dt[i-istart])-this->cavityProps.alpha/this->cavityProps.wCav*std::sin(this->cavityProps.wRF*tmp_dt[i-istart])-
                         this->Ugm1/this->cavityProps.C/this->cavityProps.L/(this->cavityProps.wCav)*std::sin(this->cavityProps.wCav*tmp_dt[i-istart]))*std::exp(-this->cavityProps.alpha*tmp_dt[i-istart]);
+        
         //std::cout<<"Vgen at time "<<this->time[i]<<" : "<<this->vGen[i]<<std::endl;
     }
 }
@@ -206,6 +229,9 @@ void Cavity::calVbeam(Beam& beam, int& istart, int& iend, int& ilast_feed){
 
 void Cavity::updateVadd(Beam& beam){
     //std::cout<<"Updating Vadd"<<std::endl;
+    // Set the number of threads
+    omp_set_num_threads(this->n_thread);
+    #pragma omp parallel for
     for(int i = 0;i<beam.vAdd.size();++i){
         beam.vAdd[i] = -beam.q[i]*this->cavityProps.wCav*this->cavityProps.RoQ;
     }
@@ -280,7 +306,7 @@ void Cavity::updateIg(const int& ifeed){
     std::cout<<"Ig this: "<<this->Ig<<std::endl;
     */
     this->Ig = this->Ig*std::exp(ii*this->cavityProps.wRF*(this->feed_time[ifeed]-this->tlast_feed))+
-                this->cavityProps.gp*dV;
+                this->cavityProps.gp*dV/this->cavityProps.R;
     //std::cout<<"Ig after update: "<<this->Ig<<std::endl;
 }
 
@@ -313,8 +339,8 @@ void Cavity::kickPar(Beam& beam){
     std::cout<<"Kick: "<<kick<<std::endl;
     std::cout<<"Total kick:"<<kick-beam.Vrad<<std::endl;
     */
+   #pragma omp parallel for
     for(int i = 0; i < beam.nPar*beam.nBunch; ++i){
-        
         kick = ((this->vGen[i]+this->vBeam[i]-beam.vAdd[i]/2.0)).real();
         beam.gamma[i] += kick/beam.E0;
     }
@@ -351,6 +377,7 @@ void Cavity::fullMap(Beam& beam){
         }
         istart = iend;
     }
+    beam.sortBasedOnTime();
     /*
     std::cout<<"generator voltage of first particle: "<<this->vGen[0]<<std::endl;
     std::cout<<"beam voltage of first particle: "<<this->vBeam[0]<<std::endl;

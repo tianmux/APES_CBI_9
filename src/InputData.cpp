@@ -112,6 +112,8 @@ void InputData::loadDataFromFile(const std::string& filename) {
     auto& generalJson = json["generalProps"];
 
     generalProps.t0 = generalJson["t0"];
+    generalProps.n_thread = generalJson["n_thread"];
+    generalProps.projectName = generalJson["projectName"];
 
     file.close();
 
@@ -147,6 +149,12 @@ void InputData::loadDataFromFile(const std::string& filename) {
 }
 
 void InputData::printInputData() const {
+
+    // Print GeneralProperties
+    std::cout << "\nGeneral Properties:" << std::endl;
+    std::cout << "  Project Name: " << generalProps.projectName << std::endl;
+    std::cout << "  Initial Time in unit of RF Cycle: " << generalProps.t0 << std::endl;
+    std::cout << "  Number of Threads: " << generalProps.n_thread << std::endl;
     // Print CavityProperties
     std::cout << "Cavity Properties:" << std::endl;
     std::cout << "  Num Cavities: " << cavityProps.numCavities << std::endl;
@@ -220,10 +228,5 @@ void InputData::printInputData() const {
     std::cout << "  Optimal Frequency Shift: " << df_opt << std::endl;
     std::cout << "  Reference Beam Induced Voltage: " << cavityProps.Vb_ref << std::endl;
     std::cout << "  Momentum Compaction Factor: " << eta << std::endl;
-
-    // Print GeneralProperties
-    std::cout << "\nGeneral Properties:" << std::endl;
-    std::cout << "  Initial Time in unit of RF Cycle: " << generalProps.t0 << std::endl;
-
 
 }

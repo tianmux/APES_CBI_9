@@ -1,6 +1,6 @@
 # Compiler settings - Can be customized.
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -Iinclude -Ilib -O3
+CXXFLAGS = -Wall -std=c++11 -pg -Iinclude -Ilib -O3 -fopenmp 
 
 # Build directories
 SRCDIR = src
@@ -8,7 +8,7 @@ BUILDDIR = build
 TESTDIR = tests
 
 # Target executable for tests
-TESTTARGET = $(BUILDDIR)/testInputData ../inputs/input.json
+TESTTARGET = $(BUILDDIR)/testInputData 
 
 # Source and Object files
 SRCS = $(wildcard $(SRCDIR)/*.cpp)

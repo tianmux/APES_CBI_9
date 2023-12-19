@@ -12,6 +12,11 @@
 const std::complex<double> ii(0.0, 1.0);
 
 
+struct GeneralProperties{
+    double t0;  // initial time in terms of number of RF cycles. 
+    int n_thread; // number of threads
+    std::string projectName; // name of the project
+};
 // Define additional structures if needed
 struct CavityProperties {
     int numCavities; //number of cavities
@@ -83,11 +88,6 @@ struct LatticeProperties {
     // Add other initial conditions
 };
 
-struct GeneralProperties{
-    double t0;  // initial time in terms of number of RF cycles. 
-
-
-};
 
 // Main structure for input data
 struct InputData {
