@@ -1,0 +1,48 @@
+{
+    "cavityProps": {
+        "numCavities": 1,
+        "h": 400,
+        "RoQ": 47.65,
+        "QL": 2.1e5,
+        "Vsynch": 1.2e5,
+        "Vquad": 1.595e6,
+        "df": -15241,
+        "feed_step": 400,
+        "gp": 0.0,
+        "gi": 0.0,
+        "gd": 0.0,
+        "gc": 0.0,
+        "epsilon": 0.0,
+        "delay": 0.000
+    },
+    "beamProps": {
+        "qPb": 2.0125e-9,
+        "nTrain": 1,
+        "pattern": [400, 0],
+        "dynamicOn": 1,
+        "parStoreStep": 1,
+        "nBunch": 400,
+        "fill_step": 1,
+        "Ek": 1890189000,
+        "Vrad": 1.2e5,
+        "gamma0": 3.699e3,
+        "gMTSQ": 5.882e1,
+        "nPar": 1,
+        "tau": 0.022e11,
+        "sig_gamma": 220.7440935054759e-22,
+        "sig_time":  2.6e-111 
+    },
+    "latticeProps": {
+        "R": 37.8,
+        "nRamp": 10,
+        "nTrack": 10000,
+        "sampRate": 1,
+        "sampRate_V": 1000
+    },
+    "generalProps":{
+    	"t0": 0,
+        "n_thread": 1,
+        "projectName": "test"
+    }
+}
+
